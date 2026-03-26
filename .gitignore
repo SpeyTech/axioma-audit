@@ -33,3 +33,5 @@ secrets/
 # Generated
 axioms.yml.bak
 *.tar.gz
+*.tar.gz
+build/
