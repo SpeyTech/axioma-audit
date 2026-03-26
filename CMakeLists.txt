@@ -65,8 +65,36 @@ add_compile_options(
     -fno-fast-math
 )
 
+# ==============================================================================
+# DETERMINISM CLOSURE FLAGS (Phase 1.5)
+# ==============================================================================
+# These flags remove compiler optimisation-induced variance and align behaviour
+# across toolchains. Required for D1 certification claims.
+#
+# @traceability DVEC-001 Section 4.1 (Determinism Contract)
+
+add_compile_options(
+    # Prevent type-punning optimisations that assume strict aliasing
+    -fno-strict-aliasing
+    
+    # Define signed overflow as wrapping (two's complement)
+    # Prevents UB-based optimisations on overflow
+    -fwrapv
+    
+    # Disable auto-vectorisation (SIMD variance across platforms)
+    -fno-tree-vectorize
+    
+    # Use explicit implementations, not compiler builtins
+    # Ensures identical codepaths across compilers
+    -fno-builtin
+    
+    # Preserve frame pointer for debugging and stack traces
+    -fno-omit-frame-pointer
+)
+
 # Platform-specific flags
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    # Require explicit extern for global variables
     add_compile_options(-fno-common)
 endif()
 
