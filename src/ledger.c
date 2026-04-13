@@ -10,7 +10,7 @@
  * Chain extension: Ln = SHA-256("AX:LEDGER:v1" || Ln-1 || commit(en))
  *
  * Copyright (c) 2026 The Murray Family Innovation Trust
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  * Patent: UK GB2521625.0
  *
  * @traceability SRS-001-SHALL-006, SRS-001-SHALL-007, SRS-005-SHALL-001,
@@ -23,8 +23,8 @@
 
 #include <axilog/audit.h>
 #include <axilog/commitment.h>
+#include <axilog/sha256.h>
 #include <axilog/dvec.h>
-#include "sha256_internal.h"
 #include <string.h>
 #include <stdint.h>
 
@@ -84,7 +84,6 @@ void ax_ledger_genesis(
     ct_fault_flags_t *faults
 )
 {
-    ax_sha256_ctx_t sha_ctx;
     uint8_t e0[32];
     size_t chain_tag_len;
 
@@ -121,13 +120,16 @@ void ax_ledger_genesis(
      * only (tag || e0) because there is no previous hash.
      *
      * SRS-006-SHALL-002: L0 = SHA-256("AX:LEDGER:v1" || commit(e0))
+     *
+     * Stack buffer: strlen("AX:LEDGER:v1") + 32 = 12 + 32 = 44 bytes
      */
     chain_tag_len = strlen(AX_LEDGER_CHAIN_TAG);
-
-    ax_sha256_init(&sha_ctx);
-    ax_sha256_update(&sha_ctx, (const uint8_t *)AX_LEDGER_CHAIN_TAG, chain_tag_len);
-    ax_sha256_update(&sha_ctx, e0, 32U);
-    ax_sha256_final(&sha_ctx, ctx->genesis_hash);
+    {
+        uint8_t chain_buf[44]; /* 12 + 32 — compile-time bounded */
+        memcpy(chain_buf, AX_LEDGER_CHAIN_TAG, chain_tag_len);
+        memcpy(chain_buf + chain_tag_len, e0, 32U);
+        axilog_sha256(ctx->genesis_hash, chain_buf, chain_tag_len + 32U);
+    }
 
     /* Step 4: Store genesis state */
     memcpy(ctx->current_hash, ctx->genesis_hash, 32);
@@ -153,7 +155,6 @@ void ax_ledger_append(
     ct_fault_flags_t *faults
 )
 {
-    ax_sha256_ctx_t sha_ctx;
     size_t chain_tag_len;
 
     /* Input validation */
@@ -196,14 +197,17 @@ void ax_ledger_append(
      * Ln = SHA-256("AX:LEDGER:v1" || Ln-1 || commit)
      *
      * SRS-006-SHALL-002: Chain extension SHALL be computed as specified.
+     *
+     * Stack buffer: 12 + 32 + 32 = 76 bytes — compile-time bounded
      */
     chain_tag_len = strlen(AX_LEDGER_CHAIN_TAG);
-
-    ax_sha256_init(&sha_ctx);
-    ax_sha256_update(&sha_ctx, (const uint8_t *)AX_LEDGER_CHAIN_TAG, chain_tag_len);
-    ax_sha256_update(&sha_ctx, ctx->current_hash, 32U);
-    ax_sha256_update(&sha_ctx, commit, 32U);
-    ax_sha256_final(&sha_ctx, ctx->current_hash);
+    {
+        uint8_t chain_buf[76]; /* 12 + 32 + 32 */
+        memcpy(chain_buf, AX_LEDGER_CHAIN_TAG, chain_tag_len);
+        memcpy(chain_buf + chain_tag_len, ctx->current_hash, 32U);
+        memcpy(chain_buf + chain_tag_len + 32U, commit, 32U);
+        axilog_sha256(ctx->current_hash, chain_buf, chain_tag_len + 64U);
+    }
 
     /* Increment sequence */
     ctx->sequence += 1U;
