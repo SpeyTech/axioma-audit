@@ -12,7 +12,7 @@
  * - Fixed vectors, property tests, fault injection
  *
  * Copyright (c) 2026 Spey Systems LTD
- * SPDX-License-Identifier: GPL-3.0-or-later
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  * Patent: UK GB2521625.0
  *
  * @traceability SRS-001-SHALL-006, SRS-001-SHALL-007, SRS-005-SHALL-001,

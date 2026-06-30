@@ -4,7 +4,7 @@
 **DVEC:** v1.3
 **Determinism Class:** D1
 **Layer:** Layer 6 — Cryptographic Audit Ledger with Typed Evidence
-**License:** GPL-3.0
+**License:** AGPL-3.0
 **Part of:** [axilog.io](https://axilog.io) · SpeyTech
 
 > *"Turing completeness is a vulnerability. Totality is a feature."*
@@ -26,7 +26,7 @@ See `docs/requirements/`
 
 ### License
 
-GPL-3.0 — see LICENSE
+AGPL-3.0 — see LICENSE
 
 ---
 
