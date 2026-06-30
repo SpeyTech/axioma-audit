@@ -30,5 +30,5 @@ GPL-3.0 — see LICENSE
 
 ---
 
-Copyright © 2026 The Murray Family Innovation Trust. All rights reserved.
+Copyright © 2026 Spey Systems LTD. All rights reserved.
 Patent GB2521625.0

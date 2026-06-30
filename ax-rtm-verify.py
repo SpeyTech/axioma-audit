@@ -8,7 +8,7 @@ DETERMINISM: D1 — Strict Deterministic
 Verifies that all public functions have SRS requirement anchors and
 that no orphan code exists without traceability.
 
-Copyright (c) 2026 The Murray Family Innovation Trust
+Copyright (c) 2026 Spey Systems LTD
 SPDX-License-Identifier: GPL-3.0-or-later
 Patent: UK GB2521625.0
 

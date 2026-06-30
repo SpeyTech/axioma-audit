@@ -9,7 +9,7 @@
  * Implements the append-only cryptographic hash chain per SRS-001 v0.3.
  * Chain extension: Ln = SHA-256("AX:LEDGER:v1" || Ln-1 || commit(en))
  *
- * Copyright (c) 2026 The Murray Family Innovation Trust
+ * Copyright (c) 2026 Spey Systems LTD
  * SPDX-License-Identifier: AGPL-3.0-or-later
  * Patent: UK GB2521625.0
  *

@@ -10,7 +10,7 @@
  * for the Axioma framework. All state transitions are committed to
  * a hash chain that provides tamper-evident, verifiable audit trails.
  *
- * Copyright (c) 2026 The Murray Family Innovation Trust
+ * Copyright (c) 2026 Spey Systems LTD
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Patent: UK GB2521625.0
  *
