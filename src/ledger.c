@@ -38,31 +38,39 @@
  * @param tag Tag string to validate
  * @return 1 if valid evidence tag, 0 otherwise
  */
+/* Registered evidence type tags (DVEC-001 §4.4). Table-driven over the
+ * AX_TAG_* defines in <axilog/dvec.h> so a registry amendment in the
+ * canonical header flows here without editing this function. v1.4 added
+ * the AX:FCC block. */
+static const char *const REGISTERED_EVIDENCE_TAGS[] = {
+    AX_TAG_STATE,
+    AX_TAG_TRANS,
+    AX_TAG_OBS,
+    AX_TAG_POLICY,
+    AX_TAG_PROOF,
+    AX_TAG_FCC_C,
+    AX_TAG_FCC_TS,
+    AX_TAG_FCC_DEV,
+    AX_TAG_FCC_REG,
+    AX_TAG_FCC_VERDICT,
+};
+
 static int is_valid_evidence_tag(const char *tag)
 {
+    size_t i;
+
     if (tag == NULL) {
         return 0;
     }
 
-    /* Compare against registered evidence type tags (DVEC-001 §4.4) */
-    if (strcmp(tag, AX_TAG_STATE) == 0) {
-        return 1;
-    }
-    if (strcmp(tag, AX_TAG_TRANS) == 0) {
-        return 1;
-    }
-    if (strcmp(tag, AX_TAG_OBS) == 0) {
-        return 1;
-    }
-    if (strcmp(tag, AX_TAG_POLICY) == 0) {
-        return 1;
-    }
-    if (strcmp(tag, AX_TAG_PROOF) == 0) {
-        return 1;
+    for (i = 0; i < sizeof(REGISTERED_EVIDENCE_TAGS) /
+                    sizeof(REGISTERED_EVIDENCE_TAGS[0]); i++) {
+        if (strcmp(tag, REGISTERED_EVIDENCE_TAGS[i]) == 0) {
+            return 1;
+        }
     }
 
-    /* Reject chain tags used as evidence types */
-    /* AX:LEDGER:v1 is a chain tag, NOT an evidence type */
+    /* Chain tags (AX:LEDGER:v1, DVM:*) are not evidence types. */
     return 0;
 }
 

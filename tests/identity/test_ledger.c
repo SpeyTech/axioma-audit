@@ -734,7 +734,13 @@ static int test_commit_evidence_all_tags(void)
         AX_TAG_TRANS,
         AX_TAG_OBS,
         AX_TAG_POLICY,
-        AX_TAG_PROOF
+        AX_TAG_PROOF,
+        /* FCC-001 claim tags, registered DVEC v1.4 */
+        AX_TAG_FCC_C,
+        AX_TAG_FCC_TS,
+        AX_TAG_FCC_DEV,
+        AX_TAG_FCC_REG,
+        AX_TAG_FCC_VERDICT
     };
     size_t num_tags = sizeof(tags) / sizeof(tags[0]);
     size_t i;
