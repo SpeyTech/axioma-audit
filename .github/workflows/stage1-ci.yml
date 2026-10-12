@@ -24,14 +24,16 @@ jobs:
           - { name: gcc-release,   os: ubuntu-24.04,     cc: gcc,   type: Release, san: "" }
           - { name: clang-release, os: ubuntu-24.04,     cc: clang, type: Release, san: "" }
           - { name: asan-ubsan,    os: ubuntu-24.04,     cc: gcc,   type: Debug,   san: "-fsanitize=address,undefined -fno-sanitize-recover=all" }
+          # Release+sanitizer: failed on main with -Winline under -Werror (now non-fatal).
+          - { name: asan-ubsan-release, os: ubuntu-24.04, cc: gcc,  type: Release, san: "-fsanitize=address,undefined -fno-sanitize-recover=all" }
           - { name: arm64-gcc,     os: ubuntu-24.04-arm, cc: gcc,   type: Release, san: "" }
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           path: estate/axioma-audit
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: SpeyTech/axioma-spec
           ref: ${{ env.SPEC_SHA }}
@@ -79,14 +81,14 @@ jobs:
     # C-21 must still reproduce on the pinned main commit until PCR-003 merges.
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           path: estate/axioma-audit
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           path: estate/audit-main
           ref: ${{ env.MAIN_SHA }}
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           repository: SpeyTech/axioma-spec
           ref: ${{ env.SPEC_MAIN_SHA }}
