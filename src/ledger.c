@@ -268,9 +268,144 @@ void ax_verify_chain(
     }
 
     /*
-     * Phase 1 verification complete.
-     * Additional verification (replay, chain walk) would be Phase 2.
+     * Context self-check complete. This is not chain verification; see
+     * ax_verify_chain_records() / ax_verify_chain_commits().
      */
+}
+
+/**
+ * @brief Check a ledger context's own flags (preferred name)
+ *
+ * SRS-005-SHALL-005: Fail-closed terminality.
+ */
+void ax_ledger_check_context(
+    ax_ledger_ctx_t  *ctx,
+    ct_fault_flags_t *faults
+)
+{
+    ax_verify_chain(ctx, faults);
+}
+
+/*
+ * Shared tail of the two chain verifiers: compare the recomputed head.
+ */
+static ax_chain_verdict_t chain_verdict(
+    const ax_ledger_ctx_t *c,
+    const uint8_t          expected_head[32],
+    uint8_t                out_head[32],
+    ct_fault_flags_t      *faults
+)
+{
+    if (out_head != NULL) {
+        memcpy(out_head, c->current_hash, 32U);
+    }
+    if (expected_head == NULL) {
+        return AX_CHAIN_CONSISTENT_UNANCHORED;
+    }
+    if (memcmp(c->current_hash, expected_head, 32U) != 0) {
+        faults->ledger_fail = 1;
+        return AX_CHAIN_HEAD_MISMATCH;
+    }
+    return AX_CHAIN_MATCHES_SUPPLIED_HEAD;
+}
+
+/**
+ * @brief Recompute a chain from its evidence records and compare
+ *
+ * SRS-006-SHALL-002: Chain extension function (recomputed, not trusted).
+ * SRS-006-SHALL-003: Registered evidence tags only.
+ * SRS-006-SHALL-007: Verification SHALL detect inconsistency.
+ *
+ * Uses a private ledger context: the caller's ledger state is never read.
+ */
+ax_chain_verdict_t ax_verify_chain_records(
+    const ax_evidence_t *records,
+    uint64_t             n,
+    const uint8_t      (*claimed_commits)[32],
+    const uint8_t        expected_head[32],
+    uint8_t              out_head[32],
+    ct_fault_flags_t    *faults
+)
+{
+    ax_ledger_ctx_t  c;
+    ct_fault_flags_t f;
+    uint8_t          commit[32];
+    uint64_t         i;
+
+    if (faults == NULL) {
+        return AX_CHAIN_REJECTED;
+    }
+    if ((records == NULL && n > 0U) || n == UINT64_MAX) {
+        faults->domain = 1;
+        return AX_CHAIN_REJECTED;
+    }
+
+    ct_fault_init(&f);
+    ax_ledger_genesis(&c, &f);
+    if (ct_fault_any(&f)) {
+        faults->domain = 1;
+        return AX_CHAIN_REJECTED;
+    }
+
+    for (i = 0U; i < n; i++) {
+        ax_commit_evidence(&records[i], commit, &f);
+        if (ct_fault_any(&f)) {
+            faults->domain = 1;
+            return AX_CHAIN_REJECTED;
+        }
+        if (claimed_commits != NULL &&
+            memcmp(commit, claimed_commits[i], 32U) != 0) {
+            faults->ledger_fail = 1;
+            return AX_CHAIN_INCONSISTENT;
+        }
+        ax_ledger_append(&c, commit, &f);
+        if (ct_fault_any(&f)) {
+            faults->ledger_fail = 1;
+            return AX_CHAIN_REJECTED;
+        }
+    }
+
+    return chain_verdict(&c, expected_head, out_head, faults);
+}
+
+/**
+ * @brief Recompute a chain from commitments alone and compare
+ *
+ * SRS-006-SHALL-002: Chain extension function (recomputed, not trusted).
+ * SRS-006-SHALL-007: Verification SHALL detect inconsistency.
+ */
+ax_chain_verdict_t ax_verify_chain_commits(
+    const uint8_t      (*commits)[32],
+    uint64_t             n,
+    const uint8_t        expected_head[32],
+    uint8_t              out_head[32],
+    ct_fault_flags_t    *faults
+)
+{
+    ax_ledger_ctx_t  c;
+    ct_fault_flags_t f;
+    uint64_t         i;
+
+    if (faults == NULL) {
+        return AX_CHAIN_REJECTED;
+    }
+    if (expected_head == NULL || (commits == NULL && n > 0U) ||
+        n == UINT64_MAX) {
+        faults->domain = 1;
+        return AX_CHAIN_REJECTED;
+    }
+
+    ct_fault_init(&f);
+    ax_ledger_genesis(&c, &f);
+    for (i = 0U; i < n && !ct_fault_any(&f); i++) {
+        ax_ledger_append(&c, commits[i], &f);
+    }
+    if (ct_fault_any(&f)) {
+        faults->ledger_fail = 1;
+        return AX_CHAIN_REJECTED;
+    }
+
+    return chain_verdict(&c, expected_head, out_head, faults);
 }
 
 /**

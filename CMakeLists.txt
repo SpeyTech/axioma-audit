@@ -127,6 +127,11 @@ add_executable(test_ledger tests/identity/test_ledger.c)
 target_link_libraries(test_ledger axioma-audit)
 add_test(NAME test_ledger COMMAND test_ledger)
 
+# PCR-003: chain recomputation verifiers
+add_executable(test_chain_verify tests/identity/test_chain_verify.c)
+target_link_libraries(test_chain_verify axioma-audit)
+add_test(NAME test_chain_verify COMMAND test_chain_verify)
+
 # ==============================================================================
 # CUSTOM TARGETS
 # ==============================================================================

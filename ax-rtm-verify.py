@@ -24,11 +24,14 @@ from typing import Dict, List, Set, Tuple
 
 # Required SRS anchors for public functions (from specification)
 REQUIRED_FUNCTIONS = {
-    "axilog_commit": ["SRS-007"],
+    # axilog_commit moved to axioma-spec (8fc7b34); it is anchored there.
     "ax_ledger_genesis": ["SRS-001-SHALL-006", "SRS-001-SHALL-007", "SRS-006-SHALL-002"],
     "ax_ledger_append": ["SRS-005-SHALL-005", "SRS-006-SHALL-002", "SRS-006-SHALL-004"],
     "ax_verify_chain": ["SRS-005-SHALL-005", "SRS-006-SHALL-007"],
     "ax_commit_evidence": ["SRS-006-SHALL-003", "SRS-007-SHALL-006", "SRS-007-SHALL-008"],
+    "ax_ledger_check_context": ["SRS-005-SHALL-005"],
+    "ax_verify_chain_records": ["SRS-006-SHALL-002", "SRS-006-SHALL-003", "SRS-006-SHALL-007"],
+    "ax_verify_chain_commits": ["SRS-006-SHALL-002", "SRS-006-SHALL-007"],
 }
 
 # DVEC forbidden patterns
