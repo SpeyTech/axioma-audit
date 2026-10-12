@@ -55,6 +55,12 @@ add_compile_options(
     -Wno-unused-parameter
 )
 
+# -Winline stays enabled as a diagnostic but is not fatal: whether GCC inlines
+# a function depends on optimisation level and instrumentation (it declines
+# under -O2 with ASan/UBSan), so it is not a property of the source. All other
+# warnings remain errors.
+add_compile_options(-Wno-error=inline)
+
 add_compile_options(-fstack-protector-strong)
 
 add_compile_options(
