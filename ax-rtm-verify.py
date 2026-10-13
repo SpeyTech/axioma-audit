@@ -10,7 +10,6 @@ that no orphan code exists without traceability.
 
 Copyright (c) 2026 Spey Systems LTD
 SPDX-License-Identifier: AGPL-3.0-or-later
-Patent: UK GB2521625.0
 
 @traceability SRS-001-SHALL-003, SRS-001-SHALL-004, SRS-013-SHALL-001
 """
